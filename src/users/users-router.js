@@ -7,6 +7,7 @@ const {
   serializeUser,
   camelUser,
   serializePreferences,
+  camelPreferences,
   camelAnimal,
 } = require("../helpers/serialize");
 
@@ -94,6 +95,13 @@ usersRouter
       })
       .catch(next);
   })
+  .get((req, res, next) => {
+    UsersService.getUserPreferences(req.app.get("db"), req.params.user_id)
+      .then((preferences) => {
+        res.json(preferences);
+      })
+      .catch(next);
+  })
   .patch(jsonParser, (req, res, next) => {
     const { location, distance, type } = req.body;
     const preferenceToUpdate = serializePreferences({
@@ -101,6 +109,7 @@ usersRouter
       distance,
       type,
     });
+    console.log(preferenceToUpdate);
 
     UsersService.updatePreference(
       req.app.get("db"),
@@ -108,7 +117,9 @@ usersRouter
       preferenceToUpdate
     )
       .then((numRowsAffected) => {
-        res.status(204).json({ preferences: preferenceToUpdate }).end();
+        res
+          .status(202)
+          .json({ preferences: camelPreferences(preferenceToUpdate) });
       })
       .catch(next);
   });
@@ -121,7 +132,6 @@ usersRouter
         error: { message: "Unauthorized request." },
       });
     }
-    console.log("PASSSS");
     next();
   })
   .get((req, res, next) => {

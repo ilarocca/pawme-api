@@ -2,7 +2,6 @@ const AuthService = require("../auth/auth-service");
 const UsersService = require("../users/users-service");
 
 const requireAuth = async (req, res, next) => {
-  console.log("jwt auth");
   const authToken = req.get("Authorization") || "";
   let token;
 

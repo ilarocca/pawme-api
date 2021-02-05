@@ -25,23 +25,43 @@ authRouter.route("/login").post(jsonParser, (req, res, next) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid username or password." });
     }
-    console.log(user);
     const subject = user.username;
     const payload = { user_id: user.id };
     const authToken = AuthService.generateAuthToken(subject, payload);
 
-    res.status(201).json({ user: camelUser(user), authToken });
+    // let userPreferences = UsersService.getUserPreferences(
+    //   req.app.get("db"),
+    //   user.id
+    // ).then((data) => {
+    //   console.log(data);
+    // });
+    // console.log(userPreferences);
+
+    res.status(201).json({
+      user: camelUser(user),
+      authToken,
+    });
   });
 });
 
 //get current user with authToken
 authRouter.route("/current-user").get(requireAuth, async (req, res, next) => {
   const user = camelUser(req.user);
+
   try {
-    res.json(user);
+    UsersService.getUserPreferences(req.app.get("db"), user.id).then(
+      (preferences) => {
+        res.json({ user: user, preferences: preferences });
+      }
+    );
   } catch (err) {
     next({ status: 500, message: err.message });
   }
+  // try {
+  //   res.json(user);
+  // } catch (err) {
+  //   next({ status: 500, message: err.message });
+  // }
 });
 
 module.exports = authRouter;

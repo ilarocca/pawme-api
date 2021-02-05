@@ -63,6 +63,14 @@ const UsersService = {
         return rows[0];
       });
   },
+  getUserPreferences(knex, user_id) {
+    return knex("preferences")
+      .where("user_id", user_id)
+      .first()
+      .then((preferences) => {
+        return preferences;
+      });
+  },
   insertUserPreferences(knex, newUserPreferences) {
     return knex
       .insert(newUserPreferences)

@@ -17,6 +17,13 @@ const serializeUser = (user) => ({
   password: xss(user.password),
 });
 
+const camelPreferences = (preferences) => ({
+  userId: preferences.user_id,
+  location: xss(preferences.location),
+  distance: preferences.distance,
+  type: xss(preferences.type),
+});
+
 const serializePreferences = (preferences) => ({
   location: xss(preferences.location),
   distance: preferences.distance,
@@ -54,6 +61,7 @@ const serializeAnimal = (animal) => ({
 module.exports = {
   camelUser,
   serializeUser,
+  camelPreferences,
   serializePreferences,
   camelAnimal,
   serializeAnimal,
