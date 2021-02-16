@@ -9,6 +9,8 @@ const {
   serializePreferences,
   camelPreferences,
   camelAnimal,
+  serializeUserAnimal,
+  camelUserAnimal,
 } = require("../helpers/serialize");
 
 const usersRouter = express.Router();
@@ -61,6 +63,15 @@ usersRouter.route("/").post(jsonParser, (req, res, next) => {
         location: "",
         distance: null,
         type: "",
+        size: "",
+        age: "",
+        gender: "",
+        good_with_children: false,
+        good_with_dogs: false,
+        good_with_cats: false,
+        house_trained: false,
+        declawed: false,
+        special_needs: false,
       };
       const userPreferences = UsersService.insertUserPreferences(
         req.app.get("db"),
@@ -103,11 +114,33 @@ usersRouter
       .catch(next);
   })
   .patch(jsonParser, (req, res, next) => {
-    const { location, distance, type } = req.body;
+    const {
+      location,
+      distance,
+      type,
+      size,
+      age,
+      gender,
+      goodWithChildren,
+      goodWithDogs,
+      goodWithCats,
+      houseTrained,
+      declawed,
+      specialNeeds,
+    } = req.body;
     const preferenceToUpdate = serializePreferences({
       location,
       distance,
       type,
+      size,
+      age,
+      gender,
+      goodWithChildren,
+      goodWithDogs,
+      goodWithCats,
+      houseTrained,
+      declawed,
+      specialNeeds,
     });
     console.log(preferenceToUpdate);
 
@@ -137,6 +170,7 @@ usersRouter
   .get((req, res, next) => {
     UsersService.getAllUserAnimals(req.app.get("db"), req.params.user_id)
       .then((animals) => {
+        console.log(animals);
         res.status(200).json(animals.map(camelAnimal));
       })
       .catch(next);
@@ -149,4 +183,40 @@ usersRouter
       })
       .catch(next);
   });
+
+usersRouter
+  .route("/:user_id/animals/:pet_id")
+  .all(requireAuth, (req, res, next) => {
+    if (parseInt(req.user.id) !== parseInt(req.params.user_id)) {
+      return res.status(401).json({
+        error: { message: "Unauthorized request." },
+      });
+    }
+    next();
+  })
+  .post(jsonParser, (req, res, next) => {
+    const { userId, petId, interested } = req.body;
+    const newUserAnimal = serializeUserAnimal({ userId, petId, interested });
+    if (parseInt(req.user.id) !== parseInt(userId)) {
+      return res.status(401).json({
+        error: { message: "Unauthorized request." },
+      });
+    }
+
+    UsersService.insertUserAnimal(req.app.get("db"), newUserAnimal)
+      .then((userAnimal) => {
+        res.status(201).json(camelUserAnimal(userAnimal));
+      })
+      .catch(next);
+  })
+  .delete((req, res, next) => {
+    const pet_id = parseInt(req.params.pet_id);
+    const user_id = req.params.user_id;
+    UsersService.deleteUserAnimal(req.app.get("db"), user_id, pet_id)
+      .then((numRowsAffected) => {
+        res.status(204).end();
+      })
+      .catch(next);
+  });
+
 module.exports = usersRouter;

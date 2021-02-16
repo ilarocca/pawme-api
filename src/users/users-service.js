@@ -89,13 +89,39 @@ const UsersService = {
         return rows[0];
       });
   },
+  // getAllUserAnimals(knex, id) {
+  //   return knex
+  //     .from("user_animals")
+  //     .select("*")
+  //     .where("user_id", id)
+  //     .where("interested", true);
+  // },
   getAllUserAnimals(knex, id) {
-    return knex.from("animals").select("*").where("user_id", id);
+    return knex("user_animals")
+      .join("animals", "animals.pet_id", "=", "user_animals.pet_id")
+      .select("*")
+      .where("user_id", id)
+      .where("interested", true);
   },
   deleteNotInterested(knex, id) {
-    return knex("animals")
+    return knex("user_animals")
       .where("user_id", id)
-      .where("interest", false)
+      .where("interested", false)
+      .delete();
+  },
+  insertUserAnimal(knex, newUserAnimal) {
+    return knex
+      .insert(newUserAnimal)
+      .into("user_animals")
+      .returning("*")
+      .then((rows) => {
+        return rows[0];
+      });
+  },
+  deleteUserAnimal(knex, user_id, pet_id) {
+    return knex("user_animals")
+      .where("user_id", user_id)
+      .where("pet_id", pet_id)
       .delete();
   },
 };
