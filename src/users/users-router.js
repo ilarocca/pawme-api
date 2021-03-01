@@ -109,7 +109,7 @@ usersRouter
   .get((req, res, next) => {
     UsersService.getUserPreferences(req.app.get("db"), req.params.user_id)
       .then((preferences) => {
-        res.json(preferences);
+        res.status(200).json(preferences);
       })
       .catch(next);
   })
@@ -142,7 +142,6 @@ usersRouter
       declawed,
       specialNeeds,
     });
-    console.log(preferenceToUpdate);
 
     UsersService.updatePreference(
       req.app.get("db"),
@@ -174,12 +173,10 @@ usersRouter
           req.app.get("db"),
           req.params.user_id
         ).then((all) => {
-          res
-            .status(200)
-            .json({
-              interested: animals.map(camelAnimal),
-              all: all.map(camelUserAnimal),
-            });
+          res.status(200).json({
+            interested: animals.map(camelAnimal),
+            all: all.map(camelUserAnimal),
+          });
         });
       })
       .catch(next);
