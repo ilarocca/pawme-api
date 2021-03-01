@@ -89,14 +89,10 @@ const UsersService = {
         return rows[0];
       });
   },
-  // getAllUserAnimals(knex, id) {
-  //   return knex
-  //     .from("user_animals")
-  //     .select("*")
-  //     .where("user_id", id)
-  //     .where("interested", true);
-  // },
   getAllUserAnimals(knex, id) {
+    return knex.from("user_animals").select("*").where("user_id", id);
+  },
+  getInterestedUserAnimals(knex, id) {
     return knex("user_animals")
       .join("animals", "animals.pet_id", "=", "user_animals.pet_id")
       .select("*")

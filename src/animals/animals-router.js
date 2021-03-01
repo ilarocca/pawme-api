@@ -33,7 +33,6 @@ animalsRouter.route("/").post(requireAuth, jsonParser, (req, res, next) => {
 
   //if animal already inserted by a user, don't insert
   AnimalsService.getAnimal(req.app.get("db"), petId).then((animal) => {
-    console.log(animal);
     if (animal !== undefined) {
       return res.json({ message: "Animal already exists" }).end();
     } else {

@@ -168,10 +168,19 @@ usersRouter
     next();
   })
   .get((req, res, next) => {
-    UsersService.getAllUserAnimals(req.app.get("db"), req.params.user_id)
+    UsersService.getInterestedUserAnimals(req.app.get("db"), req.params.user_id)
       .then((animals) => {
-        console.log(animals);
-        res.status(200).json(animals.map(camelAnimal));
+        UsersService.getAllUserAnimals(
+          req.app.get("db"),
+          req.params.user_id
+        ).then((all) => {
+          res
+            .status(200)
+            .json({
+              interested: animals.map(camelAnimal),
+              all: all.map(camelUserAnimal),
+            });
+        });
       })
       .catch(next);
   })
